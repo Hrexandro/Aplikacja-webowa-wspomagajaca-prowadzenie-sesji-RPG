@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>RPG generator</title>
+<title>Aplikacja RPG - prototyp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
@@ -14,16 +14,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.72/vfs_fonts.js"></script>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-<header class="container site-hero">
-  <p class="eyebrow">Losowe tabele • OSR • dark fantasy</p>
-  <h1>RPG Generator</h1>
-</header>
-<div id="form-container" class="container generator-panel">
-        <div class="row">
-            <div class="col" id="select-column">
-                <select name="kategoria" id="kategoria" class="input form-select">
-                    <option value="MBCharacter">Postać - Mörk Borg</option>
+
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Aplikacja RPG</h1>
+      <p>Generator treści i panel kampanii dla Mistrza Gry</p>
+    </div>
+    <button id="logout-button" class="secondary hidden">Wyloguj</button>
+  </header>
+
+  <main>
+    <section id="login-view" class="view">
+      <h2>Logowanie</h2>
+      <p>Wybierz konto testowe, aby uruchomić prototyp.</p>
+      <button id="login-gm">Zaloguj jako Mistrz Gry</button>
+      <button id="login-player">Zaloguj jako Gracz</button>
+      <button id="login-error" class="secondary">Symuluj błędne logowanie</button>
+      <p id="login-message"></p>
+    </section>
+
+    <section id="app-view" class="view hidden">
+      <aside class="sidebar">
+        <button data-view="dashboard">Panel</button>
+        <button data-view="campaigns">Kampanie</button>
+        <button data-view="generator">Generator</button>
+        <button data-view="materials">Materiały</button>
+        <button data-view="player">Widok gracza</button>
+      </aside>
+
+      <section class="content">
+        <section id="dashboard-view" class="panel"></section>
+        <section id="campaigns-view" class="panel hidden"></section>
+
+        <section id="generator-view" class="panel hidden">
+          <h2>Generator treści RPG</h2>
+
+          <!-- tu zostają elementy wymagane przez stary script.js -->
+          <div id="form-container">
+            <div id="select-column">
+              <select id="kategoria">
+                  <option value="MBCharacter" selected>Postać - Mörk Borg</option>
                     <option value="currentEnemy">Przeciwnik do aktualnej przygody</option>
                     <option value="MBUnheroicFeats">Atuty - Mörk Borg</option>
                     <option value="Goal">Cele postaci</option>
@@ -78,42 +109,40 @@
                     <option value="MBBadHabits">Złe nawyki - Mörk Borg</option>
                     <option value="MBUncleanScroll">Zwój (przeklęty) - Mörk Borg</option>
                     <option value="MBSacredScroll">Zwój (święty) - Mörk Borg</option>
-
-
-
-                </select>
-            </div>
-            <div class="col">
-                <input type=number id="liczba" value="1" min="1" class="input form-control">
-
-            </div>
-            <div class="col">
-                <button id='generate-button' class="input btn btn-dark">Generuj</button>
-
+              </select>
+              <select id="liczba">
+                <option value="1">1 wynik</option>
+                <option value="3">3 wyniki</option>
+                <option value="5">5 wyników</option>
+                <option value="10">10 wyników</option>
+                <option value="20">20 wyników</option>
+              </select>
             </div>
 
-        </div>
+            <button id="generate-button">Generuj</button>
+            <div id="name-display"></div>
+          </div>
 
-    </div>
-    <div class="container result-panel">
-        <table class="table table-striped">
-            <tbody id="name-display"></tbody>
-        </table>
-    </div>
+          <div class="save-box">
+            <select id="campaign-select"></select>
+            <label>
+              <input type="checkbox" id="share-content">
+              Udostępnij graczom
+            </label>
+            <button id="save-content">Zapisz do kampanii</button>
+            <p id="save-message"></p>
+          </div>
+        </section>
 
-    <div class="container footer-container mt-auto">
-        <footer class = "invisible">
-            <p>This generator is an independent production by <a href="http://linktr.ee/hrexandro">Hrexandro</a> and is not affiliated with Ockult Örtmästare Games or Stockholm Kartell. It is published under the MÖRK BORG Third Party License.</p>
-            <p>MÖRK BORG is copyright Ockult Örtmästare Games and Stockholm Kartell.</p>
-          </footer>
-          <footer>
-            <p><strong><a href="https://korbaczrpg.blogspot.com/">Korbacz Bobołaka - korbaczrpg.blogspot.com</a>. <a href="https://twitter.com/hrexandro">@hrexandro</a></strong></p>
-          </footer>
-    </div>
-
-
-    <script src='script.js' type="module"></script>
+        <section id="materials-view" class="panel hidden"></section>
+        <section id="player-view" class="panel hidden"></section>
+      </section>
+    </section>
+  </main>
+<footer class="invisible">
+  <p>Materiały demonstracyjne do prototypu aplikacji RPG.</p>
+</footer>
+  <script type="module" src="script.js"></script>
+  <script type="module" src="mock-app.js"></script>
 </body>
-
-
 </html>
