@@ -3,6 +3,7 @@ const demoState = {
     { id: 1, email: "gm@test.pl", displayName: "Marcin MG", role: "GM" },
     { id: 2, email: "gracz@test.pl", displayName: "Gracz Testowy", role: "PLAYER" }
   ],
+
   campaigns: [
     {
       id: 1,
@@ -12,17 +13,21 @@ const demoState = {
       createdAt: "2026-06-06"
     }
   ],
+
   campaignMembers: [
     { id: 1, userId: 1, campaignId: 1, role: "GM" },
     { id: 2, userId: 2, campaignId: 1, role: "PLAYER" }
   ],
+
   generatedContent: [
     {
       id: 1,
       campaignId: 1,
       type: "lokacja",
       title: "Opuszczona kaplica",
-      content: "Na skraju mokradeł stoi kamienna kaplica z zatartymi symbolami.",
+      content: "Na skraju mokradeł stoi kamienna kaplica z zatartymi symbolami. Wewnątrz znajduje się popękany ołtarz i ślady świeżo palonych świec.",
+      gmComment: "Można wykorzystać jako pierwsze miejsce spotkania z kultystami.",
+      isCommentShared: false,
       createdAt: "2026-06-06",
       isShared: true
     },
@@ -32,8 +37,21 @@ const demoState = {
       type: "notatka MG",
       title: "Tajemnica kultu",
       content: "Kult działa pod przykrywką miejscowego bractwa pogrzebowego.",
+      gmComment: "Tego graczom na razie nie ujawniać. To informacja do późniejszego śledztwa.",
+      isCommentShared: false,
       createdAt: "2026-06-06",
       isShared: false
+    },
+    {
+      id: 3,
+      campaignId: 1,
+      type: "notatka MG",
+      title: "Zawartość znalezionej skrzyni",
+      content: "W skrzyni drużyna znajduje srebrny pierścień, trzy stare monety i mapę prowadzącą do ruin na północy.",
+      gmComment: "To, co znaleźliście w skrzyni.",
+      isCommentShared: true,
+      createdAt: "2026-06-06",
+      isShared: true
     }
   ]
 };
@@ -261,10 +279,16 @@ function saveGeneratedContent() {
     return;
   }
 
-  const content = document.getElementById("name-display").innerText.trim();
+  const content = normalizeText(document.getElementById("name-display").innerText);
   const campaignId = Number(document.getElementById("campaign-select").value);
   const isShared = document.getElementById("share-content").checked;
+  const gmComment = document.getElementById("gm-comment").value.trim();
+  const isCommentShared = document.getElementById("share-comment").checked;
   const message = document.getElementById("save-message");
+
+  const categorySelect = document.getElementById("kategoria");
+  const selectedCategoryName =
+    categorySelect.options[categorySelect.selectedIndex].textContent;
 
   if (!content) {
     message.textContent = "Najpierw wygeneruj treść.";
@@ -281,15 +305,20 @@ function saveGeneratedContent() {
   const newContent = {
     id: Date.now(),
     campaignId,
-    type: "wygenerowana treść",
-    title: "Wynik generatora",
+    type: "Wygenerowana treść: " + selectedCategoryName,
+    title: selectedCategoryName,
     content,
+    gmComment,
+    isCommentShared,
     createdAt: new Date().toISOString().slice(0, 10),
     isShared
   };
 
   state.generatedContent.push(newContent);
   saveState();
+
+  document.getElementById("gm-comment").value = "";
+  document.getElementById("share-comment").checked = false;
 
   message.textContent = "Treść zapisana do kampanii.";
   message.className = "message success";
@@ -299,22 +328,111 @@ function saveGeneratedContent() {
   renderDashboard();
 }
 
+function escapeHTML(text) {
+  return String(text || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+function normalizeText(text) {
+  return String(text || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "")
+    .join("\n");
+}
+
+function formatText(text) {
+  return escapeHTML(normalizeText(text)).replaceAll("\n", "<br>");
+}
+function campaignOptions(selectedId = null) {
+  return state.campaigns.map((campaign) => `
+    <option value="${campaign.id}" ${campaign.id === selectedId ? "selected" : ""}>
+      ${escapeHTML(campaign.name)}
+    </option>
+  `).join("");
+}
+
+
 function renderMaterials() {
   const materialsView = document.getElementById("materials-view");
+
+  const noteForm = currentUser && currentUser.role === "GM"
+    ? `
+      <form id="manual-note-form" class="card">
+        <h3>Nowa notatka MG</h3>
+
+        <label for="note-campaign-select">Kampania</label>
+        <select id="note-campaign-select">
+          ${campaignOptions()}
+        </select>
+
+        <label for="note-title">Tytuł notatki</label>
+        <input id="note-title" type="text" placeholder="np. Zawartość znalezionej skrzyni">
+
+        <label for="note-content">Treść notatki</label>
+        <textarea id="note-content" rows="4" placeholder="Wpisz treść notatki lub informacji dla kampanii."></textarea>
+
+        <label for="note-gm-comment">Komentarz MG</label>
+        <textarea id="note-gm-comment" rows="3" placeholder="Opcjonalny komentarz MG, np. wyjaśnienie dla graczy albo prywatna notatka."></textarea>
+
+        <div class="save-row">
+          <label class="share-label">
+            <input type="checkbox" id="note-share">
+            Udostępnij notatkę graczom
+          </label>
+
+          <label class="share-label">
+            <input type="checkbox" id="note-share-comment">
+            Pokaż komentarz graczom
+          </label>
+
+          <button type="submit">Dodaj notatkę</button>
+        </div>
+
+        <p id="note-message"></p>
+      </form>
+    `
+    : "";
 
   const materials = state.generatedContent.map((item) => {
     const campaign = state.campaigns.find((campaign) => campaign.id === item.campaignId);
 
     return `
       <div class="card">
-        <h3>${item.title}</h3>
-        <p><strong>Kampania:</strong> ${campaign ? campaign.name : "Brak kampanii"}</p>
-        <p><strong>Typ:</strong> ${item.type}</p>
-        <p>${item.content}</p>
+        <h3>${escapeHTML(item.title)}</h3>
+        <p><strong>Kampania:</strong> ${campaign ? escapeHTML(campaign.name) : "Brak kampanii"}</p>
+        <p><strong>Typ:</strong> ${escapeHTML(item.type)}</p>
+        <div class="material-content">${formatText(item.content)}</div>
+
+        ${
+          item.gmComment
+            ? `<div class="gm-comment">
+                <strong>Komentarz MG:</strong><br>
+                ${formatText(item.gmComment)}
+                <p><strong>Komentarz widoczny dla gracza:</strong> ${item.isCommentShared ? "Tak" : "Nie"}</p>
+              </div>`
+            : ""
+        }
+
         <p><strong>Widoczne dla gracza:</strong> ${item.isShared ? "Tak" : "Nie"}</p>
-        <button class="secondary toggle-share" data-id="${item.id}">
-          ${item.isShared ? "Ukryj przed graczem" : "Udostępnij graczowi"}
-        </button>
+
+        <div class="card-actions">
+          <button class="secondary toggle-share" data-id="${item.id}">
+            ${item.isShared ? "Ukryj przed graczami" : "Udostępnij graczom"}
+          </button>
+
+          ${
+            item.gmComment
+              ? `<button class="secondary toggle-comment-share" data-id="${item.id}">
+                  ${item.isCommentShared ? "Ukryj komentarz przed graczami" : "Pokaż komentarz graczom"}
+                </button>`
+              : ""
+          }
+        </div>
       </div>
     `;
   }).join("");
@@ -322,8 +440,14 @@ function renderMaterials() {
   materialsView.innerHTML = `
     <h2>Materiały kampanii</h2>
     <p>Lista treści zapisanych przez Mistrza Gry do kampanii.</p>
+    ${noteForm}
     ${materials || "<p>Brak zapisanych materiałów.</p>"}
   `;
+
+  const manualNoteForm = document.getElementById("manual-note-form");
+  if (manualNoteForm) {
+    manualNoteForm.addEventListener("submit", createManualNote);
+  }
 
   document.querySelectorAll(".toggle-share").forEach((button) => {
     button.addEventListener("click", () => {
@@ -339,6 +463,63 @@ function renderMaterials() {
       }
     });
   });
+
+  document.querySelectorAll(".toggle-comment-share").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = Number(button.dataset.id);
+      const item = state.generatedContent.find((content) => content.id === id);
+
+      if (item) {
+        item.isCommentShared = !item.isCommentShared;
+        saveState();
+        renderMaterials();
+        renderPlayerView();
+      }
+    });
+  });
+}
+
+function createManualNote(event) {
+  event.preventDefault();
+
+  const campaignId = Number(document.getElementById("note-campaign-select").value);
+  const title = document.getElementById("note-title").value.trim();
+  const content = document.getElementById("note-content").value.trim();
+  const gmComment = document.getElementById("note-gm-comment").value.trim();
+  const isShared = document.getElementById("note-share").checked;
+  const isCommentShared = document.getElementById("note-share-comment").checked;
+  const message = document.getElementById("note-message");
+
+  if (!title) {
+    message.textContent = "Podaj tytuł notatki.";
+    message.className = "message error";
+    return;
+  }
+
+  if (!content) {
+    message.textContent = "Wpisz treść notatki.";
+    message.className = "message error";
+    return;
+  }
+
+  const newNote = {
+    id: Date.now(),
+    campaignId,
+    type: "notatka MG",
+    title,
+    content,
+    gmComment,
+    isCommentShared,
+    createdAt: new Date().toISOString().slice(0, 10),
+    isShared
+  };
+
+  state.generatedContent.push(newNote);
+  saveState();
+
+  renderMaterials();
+  renderPlayerView();
+  renderDashboard();
 }
 
 function renderPlayerView() {
@@ -351,9 +532,18 @@ function renderPlayerView() {
 
     return `
       <div class="card">
-        <h3>${item.title}</h3>
-        <p><strong>Kampania:</strong> ${campaign ? campaign.name : "Brak kampanii"}</p>
-        <p>${item.content}</p>
+        <h3>${escapeHTML(item.title)}</h3>
+        <p><strong>Kampania:</strong> ${campaign ? escapeHTML(campaign.name) : "Brak kampanii"}</p>
+        <div class="material-content">${formatText(item.content)}</div>
+
+        ${
+          item.gmComment && item.isCommentShared
+            ? `<div class="player-comment">
+                <strong>Komentarz Mistrza Gry:</strong><br>
+                ${formatText(item.gmComment)}
+              </div>`
+            : ""
+        }
       </div>
     `;
   }).join("");

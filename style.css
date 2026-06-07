@@ -4,7 +4,67 @@ body {
   background: #f4f1ea;
   color: #1e1b18;
 }
+.save-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #d6c4aa;
+}
 
+#liczba {
+  max-width: 180px;
+}
+.material-content {
+  margin: 10px 0 14px;
+  line-height: 1.45;
+}
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.save-row select {
+  width: 320px;
+  max-width: 100%;
+  margin: 0;
+}
+
+.share-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.share-label input[type="checkbox"] {
+  width: auto;
+  max-width: none;
+  margin: 0;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+#gm-comment {
+  width: 100%;
+  max-width: 760px;
+  resize: vertical;
+}
+
+.gm-comment,
+.player-comment {
+  margin: 12px 0;
+  padding: 12px;
+  border-left: 4px solid #7a3f22;
+  background: #f3eadc;
+  border-radius: 8px;
+}
 .hidden {
   display: none !important;
 }

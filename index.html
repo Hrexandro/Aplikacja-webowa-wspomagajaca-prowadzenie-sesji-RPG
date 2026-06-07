@@ -59,7 +59,7 @@
                     <option value="MBUnheroicFeats">Atuty - Mörk Borg</option>
                     <option value="Goal">Cele postaci</option>
                     <option value="whatConnectsUs">Co nas łączy? - Mörk Borg</option>
-                    <option value="MBCorpseLoot">Grabienie zwłok - Mörk Borg</option>
+                    <option value="MBCorpseLoot">Grabienie - Mörk Borg</option>
                     <option value="MBNames">Imiona - Mörk Borg</option>
                     <option value="MBNobleNames">Imiona arystokratyczne- Mörk Borg</option>
                     <option value="VOTENobleNames">Imiona arystokratyczne - VotE</option>
@@ -110,34 +110,47 @@
                     <option value="MBUncleanScroll">Zwój (przeklęty) - Mörk Borg</option>
                     <option value="MBSacredScroll">Zwój (święty) - Mörk Borg</option>
               </select>
-              <select id="liczba">
-                <option value="1">1 wynik</option>
-                <option value="3">3 wyniki</option>
-                <option value="5">5 wyników</option>
-                <option value="10">10 wyników</option>
-                <option value="20">20 wyników</option>
-              </select>
+              <label for="liczba">Liczba wyników</label>
+              <input id="liczba" type="number" min="1" max="100" value="1">
             </div>
 
             <button id="generate-button">Generuj</button>
             <div id="name-display"></div>
           </div>
 
-          <div class="save-box">
-            <select id="campaign-select"></select>
-            <label>
-              <input type="checkbox" id="share-content">
-              Udostępnij graczom
-            </label>
-            <button id="save-content">Zapisz do kampanii</button>
-            <p id="save-message"></p>
-          </div>
-        </section>
+<div class="save-box">
+  <div class="save-row">
+    <select id="campaign-select"></select>
+
+    <label class="share-label">
+      <input type="checkbox" id="share-content">
+      Udostępnij treść graczom
+    </label>
+
+    <label class="share-label">
+      <input type="checkbox" id="share-comment">
+      Pokaż komentarz graczom
+    </label>
+
+    <button id="save-content">Zapisz do kampanii</button>
+  </div>
+
+  <label for="gm-comment" class="field-label">Komentarz Mistrza Gry</label>
+  <textarea
+    id="gm-comment"
+    rows="3"
+    placeholder="Opcjonalny komentarz, np. „to, co znaleźliście w skrzyni” albo prywatna notatka MG."
+  ></textarea>
+
+  <p id="save-message"></p>
+</div>
+
+        </section> <!-- koniec generator-view -->
 
         <section id="materials-view" class="panel hidden"></section>
         <section id="player-view" class="panel hidden"></section>
-      </section>
-    </section>
+      </section> <!-- koniec content -->
+    </section> <!-- koniec app-view -->
   </main>
 <footer class="invisible">
   <p>Materiały demonstracyjne do prototypu aplikacji RPG.</p>

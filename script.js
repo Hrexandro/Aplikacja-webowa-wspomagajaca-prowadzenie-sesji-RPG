@@ -2348,8 +2348,8 @@ const MBMiseriesEN = function () {
   let last = "7:7 All praise Yetsabu-Nech, the underworld’s nightmare, the black disk which stands before the sun! All praise Verhu, beaming with delight! All praise the fire which burns all! And the darkness shall swallow the darkness."   
   return {
     type: "pickerRoller",
-    list,
-    last
+    list
+
   };
 }
 
@@ -2395,8 +2395,8 @@ const MBMiseriesPL = function () {
   let last = "7:7 Chwała Yetsabu-Nech, koszmarowi podziemi, czarnemu dyskowi, który przesłania słońce! Chwała Verhu, skowyczącemu z zachwytu! Chwała płomieniom, które pochłoną wszystko! A ciemność pożre ciemność."   
   return {
     type: "pickerRoller",
-    list,
-    last
+    list
+
   };
 }
 
@@ -4239,7 +4239,7 @@ generateButton.addEventListener("click", () => {
     result.push(toAddToResult);
   }
   if (/Miseries/.test(category)){
-    result.push(pickedCategory().last)
+
   }
   displayArray(result, nameDisplay);
 });
