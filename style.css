@@ -10,6 +10,23 @@ body {
   border-top: 1px solid #d6c4aa;
 }
 
+.card-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.card-actions button,
+.compact-button {
+  width: auto;
+}
+.compact-button {
+  width: auto !important;
+  display: inline-block;
+  padding: 10px 18px;
+}
+
+
 #liczba {
   max-width: 180px;
 }
@@ -226,4 +243,35 @@ textarea {
   background: #fff;
   border-radius: 10px;
   white-space: pre-wrap;
+}
+
+.sidebar button {
+  width: 100%;
+}
+
+#login-form button {
+  width: 100%;
+}
+
+.card-actions button,
+.compact-button {
+  width: auto !important;
+  max-width: max-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+}
+
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  width: auto !important;
+  max-width: max-content;
 }

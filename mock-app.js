@@ -240,17 +240,20 @@ function renderCampaigns() {
   const campaignsView = document.getElementById("campaigns-view");
 
   const campaignCards = state.campaigns.map((campaign) => `
-    <div class="card">
-      <h3>${escapeHTML(campaign.name)}</h3>
-      <p>${escapeHTML(campaign.description)}</p>
-      <p><strong>System / klimat:</strong> ${escapeHTML(campaign.system || "Nie podano")}</p>
-      <p><strong>Utworzono:</strong> ${campaign.createdAt}</p>
+  <div class="card">
+    <h3>${escapeHTML(campaign.name)}</h3>
+    <p>${escapeHTML(campaign.description)}</p>
+    <p><strong>System / klimat:</strong> ${escapeHTML(campaign.system || "Nie podano")}</p>
+    <p><strong>Utworzono:</strong> ${campaign.createdAt}</p>
 
-      <button type="button" class="secondary generate-for-campaign" data-id="${campaign.id}">
+    <div class="card-actions">
+      <button type="button" class="secondary generate-for-campaign compact-button" data-id="${campaign.id}">
         Generuj treść do kampanii
       </button>
     </div>
-  `).join("");
+  </div>
+`).join("");
+
 
   campaignsView.innerHTML = `
     <h2>Kampanie</h2>
@@ -266,8 +269,7 @@ function renderCampaigns() {
 
       <label for="campaign-system">System / klimat</label>
       <input id="campaign-system" type="text" placeholder="np. DCC, dark fantasy">
-
-      <button type="submit">Utwórz kampanię</button>
+      <button type="submit" class="compact-button">Utwórz kampanię</button>
       <p id="campaign-message"></p>
     </form>
 
