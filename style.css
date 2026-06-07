@@ -17,6 +17,64 @@ body {
   margin: 10px 0 14px;
   line-height: 1.45;
 }
+#login-view {
+  max-width: 520px;
+  margin: 50px auto;
+}
+
+.login-card {
+  padding: 28px;
+  background: #f7f1e6;
+  border: 1px solid #d6c4aa;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.login-card h2 {
+  margin-top: 0;
+}
+
+.muted {
+  color: #6f6256;
+}
+
+#login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+#login-form input {
+  margin-bottom: 12px;
+}
+
+.demo-accounts {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #d6c4aa;
+}
+
+.demo-accounts p {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #6f6256;
+}
+
+.demo-accounts button {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.message.error {
+  color: #9b1c1c;
+  font-weight: 600;
+}
+
+.message.success {
+  color: #216c2a;
+  font-weight: 600;
+}
 .save-row {
   display: flex;
   align-items: center;
@@ -96,15 +154,7 @@ main {
   display: none;
 }
 
-#login-view {
-  max-width: 520px;
-  margin: 60px auto;
-  padding: 32px;
-  background: #fffaf0;
-  border: 1px solid #d6c4aa;
-  border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-}
+
 
 #app-view {
   display: grid;

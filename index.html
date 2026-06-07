@@ -25,14 +25,30 @@
   </header>
 
   <main>
-    <section id="login-view" class="view">
-      <h2>Logowanie</h2>
-      <p>Wybierz konto testowe, aby uruchomić prototyp.</p>
-      <button id="login-gm">Zaloguj jako Mistrz Gry</button>
-      <button id="login-player">Zaloguj jako Gracz</button>
-      <button id="login-error" class="secondary">Symuluj błędne logowanie</button>
-      <p id="login-message"></p>
-    </section>
+<section id="login-view" class="view">
+  <div class="login-card">
+    <h2>Logowanie</h2>
+    <p class="muted">Zaloguj się do aplikacji, aby zarządzać kampaniami i materiałami RPG.</p>
+
+    <form id="login-form">
+      <label for="login-email">Adres e-mail</label>
+      <input id="login-email" type="email" placeholder="Wpisz adres e-mail">
+
+      <label for="login-password">Hasło</label>
+      <input id="login-password" type="password" placeholder="Wpisz hasło">
+
+      <button type="submit">Zaloguj</button>
+    </form>
+
+    <div class="demo-accounts">
+      <p>Konta testowe do demonstracji:</p>
+      <button type="button" id="fill-gm" class="secondary">Użyj konta Mistrza Gry</button>
+      <button type="button" id="fill-player" class="secondary">Użyj konta gracza</button>
+    </div>
+
+    <p id="login-message"></p>
+  </div>
+</section>
 
     <section id="app-view" class="view hidden">
       <aside class="sidebar">

@@ -58,7 +58,7 @@ const demoState = {
 
 let state = loadState();
 let currentUser = null;
-
+let selectedCampaignId = state.campaigns[0]?.id || null;
 function loadState() {
   const saved = localStorage.getItem("rpgAppState");
 
@@ -75,13 +75,23 @@ function saveState() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("login-gm").addEventListener("click", () => loginAs("GM"));
-  document.getElementById("login-player").addEventListener("click", () => loginAs("PLAYER"));
+  // document.getElementById("login-gm").addEventListener("click", () => loginAs("GM"));
+  // document.getElementById("login-player").addEventListener("click", () => loginAs("PLAYER"));
 
-  document.getElementById("login-error").addEventListener("click", () => {
-    document.getElementById("login-message").textContent = "Nieprawidłowe dane logowania.";
-    document.getElementById("login-message").className = "message error";
+  // document.getElementById("login-error").addEventListener("click", () => {
+  //   document.getElementById("login-message").textContent = "Nieprawidłowe dane logowania.";
+  //   document.getElementById("login-message").className = "message error";
+  // });
+
+  document.getElementById("login-form").addEventListener("submit", handleLogin);
+
+  document.getElementById("fill-gm").addEventListener("click", () => {
+    fillDemoLogin("gm@test.pl");
   });
+
+  document.getElementById("fill-player").addEventListener("click", () => {
+    fillDemoLogin("gracz@test.pl");
+});
 
   document.getElementById("logout-button").addEventListener("click", logout);
 
@@ -94,6 +104,33 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("save-content").addEventListener("click", saveGeneratedContent);
 });
 
+function fillDemoLogin(email) {
+  document.getElementById("login-email").value = email;
+  document.getElementById("login-password").value = "demo";
+  document.getElementById("login-message").textContent = "";
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
+  const message = document.getElementById("login-message");
+
+  if (email === "gm@test.pl" && password === "demo") {
+    loginAs("GM");
+    return;
+  }
+
+  if (email === "gracz@test.pl" && password === "demo") {
+    loginAs("PLAYER");
+    return;
+  }
+
+  message.textContent = "Nieprawidłowy adres e-mail lub hasło.";
+  message.className = "message error";
+}
+
 function loginAs(role) {
   currentUser = state.users.find((user) => user.role === role);
 
@@ -103,7 +140,6 @@ function loginAs(role) {
   document.getElementById("login-message").textContent = "";
 
   updateNavigationForRole();
-
   renderDashboard();
   renderCampaigns();
   renderCampaignSelect();
@@ -156,7 +192,11 @@ function showView(viewName) {
   if (viewName === "player") renderPlayerView();
   if (viewName === "generator") renderCampaignSelect();
 }
-
+function generateForCampaign(campaignId) {
+    selectedCampaignId = Number(campaignId);
+    renderCampaignSelect();
+    showView("generator");
+}
 function renderDashboard() {
   const dashboard = document.getElementById("dashboard-view");
 
@@ -183,10 +223,16 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div class="card">
-      <h3>Szybkie akcje</h3>
-      <p>Utwórz kampanię, wygeneruj treść RPG, zapisz wynik i udostępnij go graczom.</p>
-    </div>
+<div class="card">
+  <h3>Szybkie akcje</h3>
+  <p>Najczęściej używane funkcje panelu Mistrza Gry.</p>
+
+  <div class="card-actions">
+    <button type="button" onclick="showView('campaigns')">Utwórz kampanię</button>
+    <button type="button" onclick="showView('generator')">Przejdź do generatora</button>
+    <button type="button" onclick="showView('materials')">Zobacz materiały</button>
+  </div>
+</div>
   `;
 }
 
@@ -195,10 +241,14 @@ function renderCampaigns() {
 
   const campaignCards = state.campaigns.map((campaign) => `
     <div class="card">
-      <h3>${campaign.name}</h3>
-      <p>${campaign.description}</p>
-      <p><strong>System / klimat:</strong> ${campaign.system || "Nie podano"}</p>
+      <h3>${escapeHTML(campaign.name)}</h3>
+      <p>${escapeHTML(campaign.description)}</p>
+      <p><strong>System / klimat:</strong> ${escapeHTML(campaign.system || "Nie podano")}</p>
       <p><strong>Utworzono:</strong> ${campaign.createdAt}</p>
+
+      <button type="button" class="secondary generate-for-campaign" data-id="${campaign.id}">
+        Generuj treść do kampanii
+      </button>
     </div>
   `).join("");
 
@@ -226,6 +276,11 @@ function renderCampaigns() {
   `;
 
   document.getElementById("campaign-form").addEventListener("submit", createCampaign);
+  document.querySelectorAll(".generate-for-campaign").forEach((button) => {
+  button.addEventListener("click", () => {
+    generateForCampaign(button.dataset.id);
+  });
+});
 }
 
 function createCampaign(event) {
@@ -251,7 +306,7 @@ function createCampaign(event) {
   };
 
   state.campaigns.push(newCampaign);
-
+  selectedCampaignId = newCampaign.id;
   state.campaignMembers.push({
     id: Date.now() + 1,
     userId: currentUser.id,
@@ -270,7 +325,9 @@ function renderCampaignSelect() {
   const campaignSelect = document.getElementById("campaign-select");
 
   campaignSelect.innerHTML = state.campaigns.map((campaign) => `
-    <option value="${campaign.id}">${campaign.name}</option>
+    <option value="${campaign.id}" ${campaign.id === selectedCampaignId ? "selected" : ""}>
+      ${escapeHTML(campaign.name)}
+    </option>
   `).join("");
 }
 
@@ -554,3 +611,4 @@ function renderPlayerView() {
     ${materials || "<p>Brak udostępnionych materiałów.</p>"}
   `;
 }
+window.showView = showView;
