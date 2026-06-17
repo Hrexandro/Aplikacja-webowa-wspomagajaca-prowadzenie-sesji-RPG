@@ -275,3 +275,16 @@ textarea {
   width: auto !important;
   max-width: max-content;
 }
+
+.campaign-header {
+  margin-bottom: 18px;
+}
+
+.campaign-header h2 {
+  margin-bottom: 8px;
+}
+
+.material-content {
+  margin: 10px 0 14px;
+  line-height: 1.45;
+}

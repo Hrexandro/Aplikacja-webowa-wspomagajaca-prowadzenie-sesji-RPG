@@ -59,6 +59,7 @@ const demoState = {
 let state = loadState();
 let currentUser = null;
 let selectedCampaignId = state.campaigns[0]?.id || null;
+let viewedCampaignId = null;
 function loadState() {
   const saved = localStorage.getItem("rpgAppState");
 
@@ -191,11 +192,16 @@ function showView(viewName) {
   if (viewName === "materials") renderMaterials();
   if (viewName === "player") renderPlayerView();
   if (viewName === "generator") renderCampaignSelect();
+  if (viewName === "campaign-details") renderCampaignDetails(viewedCampaignId);
 }
 function generateForCampaign(campaignId) {
     selectedCampaignId = Number(campaignId);
     renderCampaignSelect();
     showView("generator");
+}
+function openCampaignDetails(campaignId) {
+  viewedCampaignId = Number(campaignId);
+  showView("campaign-details");
 }
 function renderDashboard() {
   const dashboard = document.getElementById("dashboard-view");
@@ -239,7 +245,7 @@ function renderDashboard() {
 function renderCampaigns() {
   const campaignsView = document.getElementById("campaigns-view");
 
-  const campaignCards = state.campaigns.map((campaign) => `
+const campaignCards = state.campaigns.map((campaign) => `
   <div class="card">
     <h3>${escapeHTML(campaign.name)}</h3>
     <p>${escapeHTML(campaign.description)}</p>
@@ -247,6 +253,10 @@ function renderCampaigns() {
     <p><strong>Utworzono:</strong> ${campaign.createdAt}</p>
 
     <div class="card-actions">
+      <button type="button" class="secondary open-campaign compact-button" data-id="${campaign.id}">
+        Otwórz kampanię
+      </button>
+
       <button type="button" class="secondary generate-for-campaign compact-button" data-id="${campaign.id}">
         Generuj treść do kampanii
       </button>
@@ -283,6 +293,132 @@ function renderCampaigns() {
     generateForCampaign(button.dataset.id);
   });
 });
+  document.querySelectorAll(".open-campaign").forEach((button) => {
+    button.addEventListener("click", () => {
+      openCampaignDetails(button.dataset.id);
+    });
+  });
+
+}
+
+function renderCampaignDetails(campaignId) {
+  const campaignDetailsView = document.getElementById("campaign-details-view");
+  const campaign = state.campaigns.find((campaign) => campaign.id === Number(campaignId));
+
+  if (!campaign) {
+    campaignDetailsView.innerHTML = `
+      <h2>Kampania</h2>
+      <p>Nie znaleziono kampanii.</p>
+      <button type="button" class="secondary compact-button" id="back-to-campaigns">
+        Wróć do listy kampanii
+      </button>
+    `;
+
+    document.getElementById("back-to-campaigns").addEventListener("click", () => {
+      showView("campaigns");
+    });
+
+    return;
+  }
+
+  const campaignMaterials = state.generatedContent.filter((item) => item.campaignId === campaign.id);
+
+  const materialsHtml = campaignMaterials.map((item) => `
+    <div class="card">
+      <h3>${escapeHTML(item.title)}</h3>
+      <p><strong>Typ:</strong> ${escapeHTML(item.type)}</p>
+      <div class="material-content">${formatText(item.content)}</div>
+
+      ${
+        item.gmComment
+          ? `<div class="gm-comment">
+              <strong>Komentarz MG:</strong><br>
+              ${formatText(item.gmComment)}
+              <p><strong>Komentarz widoczny dla gracza:</strong> ${item.isCommentShared ? "Tak" : "Nie"}</p>
+            </div>`
+          : ""
+      }
+
+      <p><strong>Widoczne dla gracza:</strong> ${item.isShared ? "Tak" : "Nie"}</p>
+
+      <div class="card-actions">
+        <button class="secondary toggle-share-campaign-detail compact-button" data-id="${item.id}">
+          ${item.isShared ? "Ukryj przed graczami" : "Udostępnij graczom"}
+        </button>
+
+        ${
+          item.gmComment
+            ? `<button class="secondary toggle-comment-share-campaign-detail compact-button" data-id="${item.id}">
+                ${item.isCommentShared ? "Ukryj komentarz przed graczami" : "Pokaż komentarz graczom"}
+              </button>`
+            : ""
+        }
+      </div>
+    </div>
+  `).join("");
+
+  campaignDetailsView.innerHTML = `
+    <div class="campaign-header">
+      <div>
+        <h2>${escapeHTML(campaign.name)}</h2>
+        <p>${escapeHTML(campaign.description)}</p>
+        <p><strong>System / klimat:</strong> ${escapeHTML(campaign.system || "Nie podano")}</p>
+        <p><strong>Utworzono:</strong> ${campaign.createdAt}</p>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button type="button" class="secondary compact-button" id="back-to-campaigns">
+        Wróć do listy kampanii
+      </button>
+
+      <button type="button" class="compact-button" id="generate-from-details">
+        Generuj treść do tej kampanii
+      </button>
+    </div>
+
+    <h3>Materiały tej kampanii</h3>
+    ${materialsHtml || "<p>Brak materiałów przypisanych do tej kampanii.</p>"}
+  `;
+
+  document.getElementById("back-to-campaigns").addEventListener("click", () => {
+    showView("campaigns");
+  });
+
+  document.getElementById("generate-from-details").addEventListener("click", () => {
+    generateForCampaign(campaign.id);
+  });
+
+  document.querySelectorAll(".toggle-share-campaign-detail").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = Number(button.dataset.id);
+      const item = state.generatedContent.find((content) => content.id === id);
+
+      if (item) {
+        item.isShared = !item.isShared;
+        saveState();
+        renderCampaignDetails(campaign.id);
+        renderMaterials();
+        renderPlayerView();
+        renderDashboard();
+      }
+    });
+  });
+
+  document.querySelectorAll(".toggle-comment-share-campaign-detail").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = Number(button.dataset.id);
+      const item = state.generatedContent.find((content) => content.id === id);
+
+      if (item) {
+        item.isCommentShared = !item.isCommentShared;
+        saveState();
+        renderCampaignDetails(campaign.id);
+        renderMaterials();
+        renderPlayerView();
+      }
+    });
+  });
 }
 
 function createCampaign(event) {
